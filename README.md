@@ -18,6 +18,25 @@
 ---
 
 <p align="center">
+  <video
+    src="https://github.com/SolberLight/Youtube-BeatSaber-Sync/raw/main/repo_assets/demo.mp4"
+    poster="https://github.com/SolberLight/Youtube-BeatSaber-Sync/raw/main/repo_assets/demo-poster.jpg"
+    width="100%"
+    controls
+    muted
+    loop
+    playsinline>
+  </video>
+</p>
+
+<p align="center">
+  <sub>
+    Video not playing?
+    <a href="https://github.com/SolberLight/Youtube-BeatSaber-Sync/raw/main/repo_assets/demo.mp4">Watch the 23-second demo &rarr;</a>
+  </sub>
+</p>
+
+<p align="center">
   <img src="repo_assets/screenshot-review.png" alt="Reviewing matches in YTBSSync" width="100%" />
 </p>
 

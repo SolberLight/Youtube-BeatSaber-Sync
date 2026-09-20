@@ -33,3 +33,6 @@ queue.json
 # os
 .DS_Store
 Thumbs.db
+
+# /brag working files (shipped assets live in repo_assets/)
+brag-output/
