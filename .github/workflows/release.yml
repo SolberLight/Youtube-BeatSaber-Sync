@@ -49,6 +49,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Compile
+        run: npm run build
+
       - name: Build installer
         run: npx electron-builder --win --publish never
         env:
@@ -72,6 +75,9 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      - name: Compile
+        run: npm run build
 
       - name: Build disk images (arm64 + x64)
         run: npx electron-builder --mac --publish never
