@@ -18,21 +18,15 @@
 ---
 
 <p align="center">
-  <video
-    src="https://github.com/SolberLight/Youtube-BeatSaber-Sync/raw/main/repo_assets/demo.mp4"
-    poster="https://github.com/SolberLight/Youtube-BeatSaber-Sync/raw/main/repo_assets/demo-poster.jpg"
-    width="100%"
-    controls
-    muted
-    loop
-    playsinline>
-  </video>
+  <a href="https://github.com/SolberLight/Youtube-BeatSaber-Sync/releases/download/v0.1.0/YTBSSync-demo.mp4">
+    <img src="repo_assets/demo.gif" alt="YTBSSync in 23 seconds" width="100%" />
+  </a>
 </p>
 
 <p align="center">
   <sub>
-    Video not playing?
-    <a href="https://github.com/SolberLight/Youtube-BeatSaber-Sync/raw/main/repo_assets/demo.mp4">Watch the 23-second demo &rarr;</a>
+    <a href="https://github.com/SolberLight/Youtube-BeatSaber-Sync/releases/download/v0.1.0/YTBSSync-demo.mp4">Download the MP4</a>
+    for full resolution and sound
   </sub>
 </p>
 
