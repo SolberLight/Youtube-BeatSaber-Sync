@@ -1,0 +1,119 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # Read the version once and decide whether this release already happened,
+  # so bumping package.json is the only trigger needed for a new release.
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag_exists: ${{ steps.tag_check.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Check if tag exists
+        id: tag_check
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  release-win:
+    needs: check
+    if: needs.check.outputs.tag_exists == 'false'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build installer
+        run: npx electron-builder --win --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-win
+          path: release/*.exe
+
+  release-mac:
+    needs: check
+    if: needs.check.outputs.tag_exists == 'false'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build disk images (arm64 + x64)
+        run: npx electron-builder --mac --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No Developer ID in CI; electron-builder ad-hoc signs instead of
+          # failing. The release notes tell users how to get past Gatekeeper.
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-mac
+          path: release/*.dmg
+
+  publish:
+    needs: [check, release-win, release-mac]
+    if: needs.check.outputs.tag_exists == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.check.outputs.version }}
+          name: YTBSSync v${{ needs.check.outputs.version }}
+          generate_release_notes: true
+          body: |
+            ## Install
+
+            - **Windows** — download the `.exe` installer.
+            - **macOS** — download the `.dmg` (`arm64` for Apple Silicon, `x64` for Intel).
+
+            ### Unsigned builds
+
+            These builds are not code-signed, so the OS will warn on first launch.
+
+            - **macOS**: right-click the app → **Open**, or run
+              `xattr -dr com.apple.quarantine /Applications/YTBSSync.app`
+            - **Windows**: SmartScreen → **More info** → **Run anyway**
+          files: |
+            artifacts/release-win/*.exe
+            artifacts/release-mac/*.dmg

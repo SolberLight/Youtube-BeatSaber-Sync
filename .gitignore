@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+release/
+repo_assets/icon.iconset/
+
+# local agent/editor state
+.vscode/
+.idea/
+
+# logs & env
+*.log
+.env
+.env.*
+
+# credentials — never commit
+auth.json
+cookie.txt
+cookies.txt
+*.pem
+*.p12
+*.key
+
+# app data (should never be in-tree, but be explicit)
+config.json
+library.json
+matches.json
+downloads.json
+queue.json
+
+# os
+.DS_Store
+Thumbs.db
