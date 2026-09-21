@@ -16,7 +16,16 @@ type LookupState =
   | { phase: "done"; match: Match }
   | { phase: "error"; message: string };
 
-export function SearchView() {
+/** A song handed over from elsewhere (the last-played card) to look up. */
+export type LookupRequest = { song: SongSearchResult; nonce: number };
+
+export function SearchView({
+  request,
+  onRequestHandled,
+}: {
+  request?: LookupRequest | null;
+  onRequestHandled?: () => void;
+} = {}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SongSearchResult[] | null>(null);
   const [searching, setSearching] = useState(false);
@@ -33,6 +42,7 @@ export function SearchView() {
   const [ticked, setTicked] = useState<Record<string, string[]>>({});
 
   const searchGenRef = useRef(0);
+  const handledNonceRef = useRef<number | null>(null);
 
   const loadSideData = useCallback(async () => {
     const [cfg, dl] = await Promise.all([
@@ -131,6 +141,22 @@ export function SearchView() {
       }));
     }
   };
+
+  // Show just the requested song and start its map lookup straight away.
+  useEffect(() => {
+    if (!request || handledNonceRef.current === request.nonce) return;
+    handledNonceRef.current = request.nonce;
+    onRequestHandled?.();
+
+    searchGenRef.current++; // drop any text search still in flight
+    setSearching(false);
+    setError(null);
+    setQuery([request.song.title, request.song.artists[0]].filter(Boolean).join(" "));
+    setResults([request.song]);
+    setLookups({});
+    stopPreview();
+    void handleFindMaps(request.song);
+  }, [request]);
 
   const toggleMap = (videoId: string, mapId: string) => {
     setTicked((prev) => {

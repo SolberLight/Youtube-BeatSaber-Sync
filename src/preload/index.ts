@@ -12,6 +12,7 @@ const api = {
     sync: () => ipcRenderer.invoke("library:sync"),
     search: (query: string) => ipcRenderer.invoke("library:search", query),
     addSong: (song: unknown) => ipcRenderer.invoke("library:addSong", song),
+    lastPlayed: () => ipcRenderer.invoke("library:lastPlayed"),
   },
   matches: {
     getAll: () => ipcRenderer.invoke("matches:getAll"),

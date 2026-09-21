@@ -1,17 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AuthPage } from "./features/auth/auth-page";
 import { LibraryView } from "./features/library/library-view";
-import { SearchView } from "./features/search/search-view";
+import { SearchView, type LookupRequest } from "./features/search/search-view";
 import { MatchView } from "./features/match/match-view";
 import { DownloadsView } from "./features/downloads/downloads-view";
 import { SettingsView } from "./features/settings/settings-view";
 import { LogsView } from "./features/settings/logs-view";
+import { LastPlayedCard } from "./features/now-playing/last-played-card";
+import type { SongSearchResult } from "./lib/types";
 
 type Page = "library" | "search" | "matches" | "downloads" | "settings" | "logs";
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [currentPage, setCurrentPage] = useState<Page>("matches");
+  const [lookupRequest, setLookupRequest] = useState<LookupRequest | null>(null);
 
   const [pendingCount, setPendingCount] = useState(0);
   const [activeCount, setActiveCount] = useState(0);
@@ -82,6 +85,11 @@ export function App() {
     return <AuthPage onAuthenticated={() => setIsAuthenticated(true)} />;
   }
 
+  const findMapsFor = (song: SongSearchResult) => {
+    setLookupRequest({ song, nonce: Date.now() });
+    setCurrentPage("search");
+  };
+
   const navItem = (page: Page, label: string, badges?: React.ReactNode) => (
     <button
       className={`sidebar-link ${currentPage === page ? "active" : ""}`}
@@ -134,11 +142,18 @@ export function App() {
           {navItem("settings", "Settings")}
           {navItem("logs", "Logs")}
         </div>
+
+        <LastPlayedCard onFindMaps={findMapsFor} />
       </nav>
 
       <div className="main-content">
         {currentPage === "library" && <LibraryView />}
-        {currentPage === "search" && <SearchView />}
+        {currentPage === "search" && (
+          <SearchView
+            request={lookupRequest}
+            onRequestHandled={() => setLookupRequest(null)}
+          />
+        )}
         {currentPage === "matches" && <MatchView />}
         {currentPage === "downloads" && <DownloadsView />}
         {currentPage === "settings" && (

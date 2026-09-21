@@ -118,6 +118,89 @@ body {
 .sidebar-badge-completed { background: var(--success); color: #fff; }
 .sidebar-badge-failed { background: var(--error); color: #fff; }
 
+/* Last-played card, floating at the foot of the sidebar */
+
+.last-played {
+  margin: auto 12px 0;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.last-played-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.last-played-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: last-played-pulse 2s ease-in-out infinite;
+}
+
+@keyframes last-played-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .last-played-dot { animation: none; }
+}
+
+.last-played-song {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.last-played-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.last-played-info {
+  min-width: 0;
+}
+
+.last-played-title,
+.last-played-artist {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.last-played-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.last-played-artist {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.last-played-btn {
+  width: 100%;
+}
+
 .main-content {
   flex: 1;
   overflow-y: auto;

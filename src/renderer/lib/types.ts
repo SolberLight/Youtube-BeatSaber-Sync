@@ -217,6 +217,12 @@ export type ElectronAPI = {
       item?: LibraryItem;
       error?: string;
     }>;
+    /** Top of the YouTube Music listening history; null when it is empty. */
+    lastPlayed: () => Promise<{
+      success: boolean;
+      song: SongSearchResult | null;
+      error?: string;
+    }>;
   };
   matches: {
     getAll: () => Promise<Matches>;

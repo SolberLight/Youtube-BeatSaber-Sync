@@ -8,6 +8,7 @@ import { YoutubeMusicProvider } from "../providers/youtube-music-provider";
 import log from "electron-log/main";
 
 let cachedCookies: string | null = null;
+let sharedProvider: { cookies: string; provider: YoutubeMusicProvider } | null = null;
 
 export async function getAuthStatus(): Promise<{
   isAuthenticated: boolean;
@@ -191,6 +192,7 @@ export async function importAuth(cookies: string): Promise<void> {
 
 export async function clearAuth(): Promise<void> {
   cachedCookies = null;
+  sharedProvider = null;
   // Clear Electron session cookies too
   try {
     await session.defaultSession.clearStorageData({
@@ -214,10 +216,17 @@ export async function clearAuth(): Promise<void> {
   }
 }
 
+/**
+ * One provider per set of cookies. Building the Innertube client is costly
+ * (it fetches the player), and the last-played card polls on a timer.
+ */
 export async function getProvider(): Promise<YoutubeMusicProvider> {
   const cookies = await loadAuth();
   if (!cookies) {
     throw new Error("Not authenticated. Please sign in first.");
   }
-  return new YoutubeMusicProvider(cookies);
+  if (sharedProvider?.cookies !== cookies) {
+    sharedProvider = { cookies, provider: new YoutubeMusicProvider(cookies) };
+  }
+  return sharedProvider.provider;
 }

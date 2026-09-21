@@ -1,4 +1,4 @@
-import { Innertube } from "youtubei.js";
+import { Innertube, YTNodes } from "youtubei.js";
 import { MusicProvider, LikedSong } from "./music-provider";
 import { session } from "electron";
 import log from "electron-log/main";
@@ -227,6 +227,39 @@ export class YoutubeMusicProvider implements MusicProvider {
 
     log.info(`Search "${trimmed}" returned ${results.length} songs`);
     return results;
+  }
+
+  /**
+   * The most recent entry in the YouTube Music listening history.
+   *
+   * There is no "now playing" endpoint, but a track lands at the top of the
+   * history as soon as playback registers, so polling this is the closest we
+   * get. It carries no timestamp or play/pause state.
+   */
+  async getLastPlayed(): Promise<LikedSong | null> {
+    const yt = await this.getClient();
+
+    try {
+      const response = await yt.actions.execute("/browse", {
+        browseId: "FEmusic_history",
+        client: "YTMUSIC",
+        parse: true,
+      });
+
+      // Shelves are "Today", "Yesterday", ... newest first.
+      const shelves = response.contents_memo?.getType(YTNodes.MusicShelf) ?? [];
+      for (const shelf of shelves) {
+        for (const item of shelf.contents ?? []) {
+          const song = this.normalizeItem(item);
+          if (song) return song;
+        }
+      }
+      return null;
+    } catch (err) {
+      // A long-lived session can go stale; rebuild it on the next poll.
+      this.innertube = null;
+      throw err;
+    }
   }
 
   private collectItems(items: any[] | undefined, results: LikedSong[]): void {

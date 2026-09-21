@@ -41,6 +41,19 @@ export function registerLibraryIpc(): void {
     }
   });
 
+  ipcMain.handle("library:lastPlayed", async () => {
+    try {
+      const provider = await getProvider();
+      const song = await provider.getLastPlayed();
+      return { success: true, song };
+    } catch (err: unknown) {
+      // Polled on a timer, so keep this quiet: one warn per failure.
+      const error = toError(err);
+      log.warn("library:lastPlayed error:", error);
+      return { success: false, error, song: null };
+    }
+  });
+
   ipcMain.handle("library:addSong", async (_event, song: LikedSong) => {
     try {
       const item = await addSongFromSearch(song);
