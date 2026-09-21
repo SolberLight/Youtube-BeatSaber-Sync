@@ -889,15 +889,19 @@ input[type="checkbox"] {
 
 .pagination-bar {
   position: sticky;
-  bottom: 0;
+  /* Float just off the bottom edge so all four corners stay visible. */
+  bottom: 12px;
+  /* Above the map ticks and "best match" badges scrolling underneath. */
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
   background: var(--bg-secondary);
-  border-top: 1px solid var(--border);
-  border-radius: 0 0 var(--radius) var(--radius);
-  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  margin-top: 12px;
 }
 
 .pagination-info { font-size: 12px; color: var(--text-secondary); }

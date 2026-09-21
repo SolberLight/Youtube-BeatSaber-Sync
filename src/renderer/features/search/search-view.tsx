@@ -7,6 +7,7 @@ import {
   type Downloads,
   type Match,
   type SongSearchResult,
+  statusLabel,
 } from "../../lib/types";
 import { stopPreview } from "../../lib/preview-player";
 
@@ -293,9 +294,7 @@ export function SearchView({
                   <div className="match-song-actions">
                     {lookup.phase === "done" && (
                       <span className={`badge badge-${lookup.match.status}`}>
-                        {lookup.match.status === "no_match"
-                          ? "no match"
-                          : lookup.match.status}
+                        {statusLabel(lookup.match.status)}
                       </span>
                     )}
                     <button

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { Library, Matches } from "../../lib/types";
+import { statusLabel, type Library, type Matches } from "../../lib/types";
 
 const PAGE_SIZE = 50;
 
@@ -203,7 +203,7 @@ export function LibraryView() {
                           className="badge badge-skipped"
                           style={{ marginLeft: 8 }}
                         >
-                          unliked
+                          Unliked
                         </span>
                       )}
                     </td>
@@ -212,11 +212,7 @@ export function LibraryView() {
                     <td>{item.durationText || "-"}</td>
                     <td>
                       <span className={`badge badge-${status}`}>
-                        {status === "no_match"
-                          ? "no match"
-                          : status === "unsearched"
-                            ? "not searched"
-                            : status}
+                        {statusLabel(status)}
                       </span>
                     </td>
                   </tr>

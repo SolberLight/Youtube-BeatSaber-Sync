@@ -10,6 +10,7 @@ import {
   type Match,
   type Matches,
   type MatchStatus,
+  statusLabel,
 } from "../../lib/types";
 
 type StatusFilter = "pending" | "added" | "skipped" | "no_match" | "all";
@@ -721,7 +722,7 @@ function MatchGroup({
 
         <div className="match-song-actions">
           <span className={`badge badge-${match.status}`}>
-            {match.status === "no_match" ? "no match" : match.status}
+            {statusLabel(match.status)}
           </span>
 
           {decided && (

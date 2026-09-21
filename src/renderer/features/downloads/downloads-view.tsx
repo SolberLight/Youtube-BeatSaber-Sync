@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MapCard } from "../match/map-card";
 import { stopPreview } from "../../lib/preview-player";
-import type {
-  Config,
-  DownloadRecord,
-  Downloads,
-  Library,
-  MapCandidate,
-  Matches,
-  Queue,
+import {
+  statusLabel,
+  type Config,
+  type DownloadRecord,
+  type Downloads,
+  type Library,
+  type MapCandidate,
+  type Matches,
+  type Queue,
 } from "../../lib/types";
 
 type StatusFilter = "all" | "active" | "queued" | "failed" | "completed";
@@ -311,7 +312,7 @@ function DownloadCard({
   const footer = (
     <div className="download-status">
       <span className={`badge badge-${record.status}`}>
-        {record.status === "extracting" ? "extracting" : record.status}
+        {statusLabel(record.status)}
       </span>
 
       {record.status === "downloading" && (

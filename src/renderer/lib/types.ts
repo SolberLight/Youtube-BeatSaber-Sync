@@ -124,6 +124,16 @@ export type MapCandidate = {
 
 export type MatchStatus = "pending" | "added" | "skipped" | "no_match";
 
+const STATUS_LABELS: Record<string, string> = {
+  no_match: "No match",
+  unsearched: "Not searched",
+};
+
+/** Badge text for a status key: "no_match" -> "No match", "pending" -> "Pending". */
+export function statusLabel(status: string): string {
+  return STATUS_LABELS[status] ?? status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 export type Match = {
   songId: string;
   videoId: string;
