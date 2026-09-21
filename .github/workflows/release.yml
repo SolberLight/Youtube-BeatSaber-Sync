@@ -5,6 +5,13 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      backfill:
+        description: >-
+          Build even though this version is already released, and attach any
+          files its release is missing. Existing files and notes are untouched.
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -17,6 +24,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag_exists: ${{ steps.tag_check.outputs.exists }}
+      build: ${{ steps.tag_check.outputs.exists == 'false' || inputs.backfill }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,7 +45,7 @@ jobs:
 
   release-win:
     needs: check
-    if: needs.check.outputs.tag_exists == 'false'
+    if: needs.check.outputs.build == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +72,7 @@ jobs:
 
   release-mac:
     needs: check
-    if: needs.check.outputs.tag_exists == 'false'
+    if: needs.check.outputs.build == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -92,9 +100,38 @@ jobs:
           name: release-mac
           path: release/*.dmg
 
+  # x64 for desktop Linux and the Steam Deck; arm64 for the Steam Frame.
+  # There are no native modules, so both cross-build fine on one x64 runner.
+  release-linux:
+    needs: check
+    if: needs.check.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Compile
+        run: npm run build
+
+      - name: Build AppImages (x64 + arm64)
+        run: npx electron-builder --linux --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: release/*.AppImage
+
   publish:
-    needs: [check, release-win, release-mac]
-    if: needs.check.outputs.tag_exists == 'false'
+    needs: [check, release-win, release-mac, release-linux]
+    if: needs.check.outputs.build == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -102,6 +139,7 @@ jobs:
           path: artifacts
 
       - name: Create GitHub Release
+        if: needs.check.outputs.tag_exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.check.outputs.version }}
@@ -112,6 +150,8 @@ jobs:
 
             - **Windows** — download the `.exe` installer.
             - **macOS** — download the `.dmg` (`arm64` for Apple Silicon, `x64` for Intel).
+            - **Linux / SteamOS** — download the `.AppImage` (`arm64` for the Steam Frame,
+              `x86_64` for the Steam Deck and most PCs), make it executable, and run it.
 
             ### Unsigned builds
 
@@ -123,3 +163,24 @@ jobs:
           files: |
             artifacts/release-win/*.exe
             artifacts/release-mac/*.dmg
+            artifacts/release-linux/*.AppImage
+
+      # Re-running softprops here would overwrite the release notes, so
+      # upload with gh and skip anything already attached.
+      - name: Attach missing files to the existing release
+        if: needs.check.outputs.tag_exists == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: v${{ needs.check.outputs.version }}
+        run: |
+          existing="$(gh release view "$TAG" --json assets -q '.assets[].name')"
+          for file in artifacts/*/*; do
+            name="$(basename "$file")"
+            # GitHub stores "YTBSSync Setup 1.0.exe" as "YTBSSync.Setup.1.0.exe".
+            if grep -qxF "${name// /.}" <<< "$existing"; then
+              echo "Already attached: $name"
+            else
+              gh release upload "$TAG" "$file"
+            fi
+          done

@@ -72,6 +72,20 @@
       "icon": "repo_assets/icon.icns",
       "category": "public.app-category.music"
     },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "icon": "repo_assets/icon.png",
+      "category": "Game"
+    },
     "nsis": {
       "oneClick": false,
       "perMachine": false,

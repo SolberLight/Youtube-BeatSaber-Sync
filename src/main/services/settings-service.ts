@@ -32,7 +32,18 @@ function defaultMapsDir(): string {
     return path.join(home, "Documents", "Beat Saber", "CustomLevels");
   }
 
-  return path.join(home, "BeatSaber", "CustomLevels");
+  // Steam on Linux (SteamOS included), where Beat Saber runs under Proton.
+  return path.join(
+    home,
+    ".local",
+    "share",
+    "Steam",
+    "steamapps",
+    "common",
+    "Beat Saber",
+    "Beat Saber_Data",
+    "CustomLevels"
+  );
 }
 
 export async function loadSettings(): Promise<Config> {

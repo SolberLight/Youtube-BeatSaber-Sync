@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/SolberLight/Youtube-BeatSaber-Sync/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/SolberLight/Youtube-BeatSaber-Sync?style=flat-square" /></a>
-  <img alt="Platforms" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey?style=flat-square" />
+  <img alt="Platforms" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey?style=flat-square" />
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" /></a>
 </p>
 
@@ -56,11 +56,18 @@ Grab the latest build from [**Releases**](https://github.com/SolberLight/Youtube
 | macOS (Apple Silicon) | `YTBSSync-*-arm64.dmg` |
 | macOS (Intel) | `YTBSSync-*.dmg` |
 | Windows | `YTBSSync-Setup-*.exe` |
+| Linux / SteamOS on the Steam Frame (ARM) | `YTBSSync-*-arm64.AppImage` |
+| Linux / SteamOS on the Steam Deck and most PCs | `YTBSSync-*-x86_64.AppImage` |
 
 > **These builds are not code-signed**, so your OS will warn you on first launch.
 > On macOS, right-click the app → **Open** (or run
 > `xattr -dr com.apple.quarantine /Applications/YTBSSync.app`).
 > On Windows, SmartScreen → **More info** → **Run anyway**.
+
+On Linux, make the AppImage executable (`chmod +x YTBSSync-*.AppImage`, or
+**Properties → Permissions** in the file manager) and run it. On SteamOS, do
+this from Desktop Mode. If you want it in Gaming Mode, add it to Steam as a
+non-Steam game.
 
 ## How it works
 
