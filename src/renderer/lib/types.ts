@@ -163,6 +163,11 @@ export type Matches = {
   version: number;
   lastSearchAt: string | null;
   items: Record<string, Match>;
+  /**
+   * Songs that are another release of a song already in `items` (single vs
+   * album vs deluxe). Computed by the main process; hidden from review.
+   */
+  duplicateSongIds?: string[];
 };
 
 export type DownloadRecord = {

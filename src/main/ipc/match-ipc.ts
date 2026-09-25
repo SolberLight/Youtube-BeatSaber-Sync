@@ -1,5 +1,6 @@
 import { ipcMain, shell } from "electron";
-import { getMatches } from "../services/cache-service";
+import { getLibrary, getMatches } from "../services/cache-service";
+import { duplicateSongIds } from "../services/song-identity";
 import {
   searchMatches,
   searchMatchForSong,
@@ -25,7 +26,10 @@ function toError(err: unknown): string {
 export function registerMatchIpc(): void {
   ipcMain.handle("matches:getAll", async () => {
     try {
-      return getMatches();
+      const matches = getMatches();
+      // Computed on read rather than stored, so it tracks every decision.
+      const duplicateIds = [...duplicateSongIds(getLibrary(), matches)];
+      return { ...matches, duplicateSongIds: duplicateIds };
     } catch (err: unknown) {
       log.error("matches:getAll error:", toError(err));
       return DEFAULT_MATCHES;

@@ -10,6 +10,7 @@ import {
   passesFilters,
   scoreCandidate,
 } from "./matching";
+import { duplicateSongIds, songKey } from "./song-identity";
 import type { Config, LibraryItem, MapCandidate, Match } from "../utils/schema";
 import log from "electron-log/main";
 
@@ -183,13 +184,25 @@ export async function searchMatches(options: SearchOptions = {}): Promise<{
   const library = getLibrary();
   const matches = getMatches();
 
+  // Another release of a song that is already matched adds nothing to review.
+  const duplicates = duplicateSongIds(library, matches);
+  const coveredKeys = new Set(
+    library.items.filter((i) => matches.items[i.id]).map(songKey)
+  );
+
   const targets = library.items.filter((item) => {
     if (!item.isAvailable) return false;
     // Liked songs, plus anything added by hand from search.
     if (!item.inLibrary && item.source !== "search") return false;
+    if (duplicates.has(item.id)) return false;
 
     const existing = matches.items[item.id];
-    if (!existing) return true;
+    if (!existing) {
+      const key = songKey(item);
+      if (coveredKeys.has(key)) return false;
+      coveredKeys.add(key);
+      return true;
+    }
 
     if (existing.status === "added" || existing.status === "skipped") {
       return options.includeDecided === true;

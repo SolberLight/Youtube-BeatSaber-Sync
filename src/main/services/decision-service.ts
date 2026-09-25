@@ -1,5 +1,6 @@
 import { BrowserWindow } from "electron";
-import { getMatches, saveMatches, getDownloads } from "./cache-service";
+import { getLibrary, getMatches, saveMatches, getDownloads } from "./cache-service";
+import { duplicateSongIds } from "./song-identity";
 import { enqueueMaps } from "./download-service";
 import { getSettings } from "./settings-service";
 import { compareCandidates } from "./matching";
@@ -196,11 +197,14 @@ export async function addAllPending(): Promise<DecisionResult> {
   const downloads = getDownloads();
 
   const selections: BulkSelection[] = [];
+  // Other releases of a song already in review would download the same maps.
+  const duplicates = duplicateSongIds(getLibrary(), matches);
 
   const { preferCuratedRanked } = getSettings();
 
   for (const match of Object.values(matches.items)) {
     if (match.status !== "pending" || match.candidates.length === 0) continue;
+    if (duplicates.has(match.songId)) continue;
 
     // Re-rank rather than trusting the stored order: the ordering preference
     // may have changed since these candidates were searched.

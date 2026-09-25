@@ -165,9 +165,11 @@ export function MatchView() {
     if (!library || !matches) return [];
 
     const songsById = new Map(library.items.map((s) => [s.id, s]));
+    const duplicates = new Set(matches.duplicateSongIds ?? []);
     const out: Row[] = [];
 
     for (const match of Object.values(matches.items)) {
+      if (duplicates.has(match.songId)) continue;
       const song = songsById.get(match.songId);
       if (!song) continue;
       out.push({ song, match });
